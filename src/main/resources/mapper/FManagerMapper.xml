@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.FManagerMapper" >
+  
+  <select id="getManagerMap" resultType="java.util.HashMap">
+		    select function_id from D_R_FUN_MANAGER where MANAGER_ID=#{id};
+    </select>  
+  <insert id="insert" parameterType="com.right.entity.FManager" >
+    insert into d_r_fun_manager (MANAGER_ID, FUNCTION_ID)
+    values (#{managerId,jdbcType=VARCHAR}, #{functionId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.right.entity.FManager" >
+    insert into d_r_fun_manager
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        MANAGER_ID,
+      </if>
+      <if test="functionId != null" >
+        FUNCTION_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="functionId != null" >
+        #{functionId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

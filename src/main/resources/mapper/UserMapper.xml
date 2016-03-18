@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.UserMapper" >
+  
+  
+	 <select id="getUserList" resultType="com.right.entity.User">
+            select * from d_user where login_user=#{0}
+    </select>
+    <select id="getUser" resultType="com.right.entity.User">
+            select * from d_user where login_user=#{0}
+    </select>
+    <select id="getUser1" resultType="com.right.entity.User">
+            select * from d_user where user_id=#{id}
+    </select>
+  
+  <select id="getMap" resultType="java.util.HashMap">
+ 
+ 	select USER_ID,ORG_ID,USER_NAME,USER_ORDER,concat('user?userId=',convert(user_id,char)),'rhs' from D_USER
+    </select>
+    
+    
+    <select id="getFunctionList" resultType="java.lang.String">
+    	select function_id from d_r_userfun where user_id=#{user_id}
+    </select>
+    <select id="getFunction_name" resultType="com.right.entity.Function">
+		select * from d_function
+		<where>
+			<if test="!list.isEmpty()">
+				 function_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getFunction_id" resultType="java.lang.String">
+		select function_id from d_r_fun_manager where manager_id=#{loginId}
+		<if test="!list.isEmpty()">
+			and function_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	<!-- role_module -->
+	<select id="getModuleList" resultType="java.lang.String">
+    	select module_id from d_r_usermodule where user_id=#{user_id}
+    </select>
+    <select id="getModule_name" resultType="com.right.entity.Module">
+		select * from d_module 
+		<where>
+			<if test="!list.isEmpty()">
+				 module_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getModule_id" resultType="java.lang.String">
+		select module_id from d_r_module_manager where manager_id=#{loginId} 
+		<if test="!list.isEmpty()">
+			and module_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	
+	<!-- user_role -->
+	<select id="getRoleList" resultType="java.lang.Integer">
+    	select role_id from d_user_role where user_id=#{user_id}
+    </select>
+    <select id="getRole_name" resultType="com.right.entity.Role">
+		select * from d_role 
+		<where>
+			<if test="!list.isEmpty()">
+				 role_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	 <select id="getRole_name1" resultType="com.right.entity.Role">
+		select * from d_role 
+		<where>
+			<if test="!list.isEmpty()">
+				 role_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getRole_id" resultType="java.lang.Integer">
+		select role_id from d_role where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!list.isEmpty()">
+			and role_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	<select id="getOrg_id" resultType="java.lang.Integer">
+		select org_id from d_user where user_id = #{user_id} union (select org_id from d_org where up_org_id = (select org_id from d_user where user_id = #{user_id}))
+	</select>
+	
+  <insert id="insert" parameterType="com.right.entity.User" useGeneratedKeys="true" keyProperty="org_id">
+    insert into d_user (USER_ID, ORG_ID, USER_NAME, 
+      LOGIN_USER, PASSWORD, GENDER, 
+      ADDRESS, MAIL, E_MAIL, 
+      AGE, USER_TEL, BYDATE, 
+      BYSCHOOL, SUBJECT, EDU, 
+      MARRY, PROVINCE, NATION, 
+      USER_BIRTH, U_NAME, USER_ORDER, 
+      USER_CONTROL)
+    values (#{user_id,jdbcType=VARCHAR}, #{org_id,jdbcType=INTEGER}, #{user_name,jdbcType=CHAR}, 
+      #{login_user,jdbcType=VARCHAR}, #{password,jdbcType=CHAR}, #{gender,jdbcType=VARCHAR}, 
+      #{address,jdbcType=VARCHAR}, #{mail,jdbcType=VARCHAR}, #{e_mail,jdbcType=VARCHAR}, 
+      #{age,jdbcType=INTEGER}, #{user_tel,jdbcType=VARCHAR}, #{bydate,jdbcType=VARCHAR}, 
+      #{byschool,jdbcType=VARCHAR}, #{subject,jdbcType=VARCHAR}, #{edu,jdbcType=VARCHAR}, 
+      #{marry,jdbcType=VARCHAR}, #{province,jdbcType=VARCHAR}, #{nation,jdbcType=VARCHAR}, 
+      #{user_birth,jdbcType=VARCHAR}, #{u_name,jdbcType=VARCHAR}, #{user_order,jdbcType=INTEGER}, 
+      #{user_control,jdbcType=SMALLINT})
+  </insert>
+  <update id="update">
+  	UPDATE d_user
+		SET
+		ORG_ID = #{org_id},
+		USER_NAME = #{user_name },
+		LOGIN_USER = #{login_user },
+		PASSWORD = #{password },
+		GENDER = #{gender },
+		ADDRESS = #{address },
+		MAIL = #{mail },
+		E_MAIL = #{e_mail },
+		AGE = #{age },
+		USER_TEL = #{user_tel },
+		BYDATE = #{bydate },
+		BYSCHOOL = #{byschool },
+		SUBJECT = #{subject },
+		EDU = #{edu },
+		MARRY = #{marry },
+		PROVINCE = #{province },
+		NATION = #{nation },
+		USER_BIRTH = #{user_birth },
+		U_NAME = #{u_name },
+		USER_ORDER = #{user_order },
+		USER_CONTROL = #{user_control }
+		WHERE USER_ID = #{user_id};
+  </update>
+  <insert id="insertSelective" parameterType="com.right.entity.User" >
+    insert into d_user
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="userName != null" >
+        USER_NAME,
+      </if>
+      <if test="loginUser != null" >
+        LOGIN_USER,
+      </if>
+      <if test="password != null" >
+        PASSWORD,
+      </if>
+      <if test="gender != null" >
+        GENDER,
+      </if>
+      <if test="address != null" >
+        ADDRESS,
+      </if>
+      <if test="mail != null" >
+        MAIL,
+      </if>
+      <if test="eMail != null" >
+        E_MAIL,
+      </if>
+      <if test="age != null" >
+        AGE,
+      </if>
+      <if test="userTel != null" >
+        USER_TEL,
+      </if>
+      <if test="bydate != null" >
+        BYDATE,
+      </if>
+      <if test="byschool != null" >
+        BYSCHOOL,
+      </if>
+      <if test="subject != null" >
+        SUBJECT,
+      </if>
+      <if test="edu != null" >
+        EDU,
+      </if>
+      <if test="marry != null" >
+        MARRY,
+      </if>
+      <if test="province != null" >
+        PROVINCE,
+      </if>
+      <if test="nation != null" >
+        NATION,
+      </if>
+      <if test="userBirth != null" >
+        USER_BIRTH,
+      </if>
+      <if test="uName != null" >
+        U_NAME,
+      </if>
+      <if test="userOrder != null" >
+        USER_ORDER,
+      </if>
+      <if test="userControl != null" >
+        USER_CONTROL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null" >
+        #{userName,jdbcType=CHAR},
+      </if>
+      <if test="loginUser != null" >
+        #{loginUser,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null" >
+        #{password,jdbcType=CHAR},
+      </if>
+      <if test="gender != null" >
+        #{gender,jdbcType=VARCHAR},
+      </if>
+      <if test="address != null" >
+        #{address,jdbcType=VARCHAR},
+      </if>
+      <if test="mail != null" >
+        #{mail,jdbcType=VARCHAR},
+      </if>
+      <if test="eMail != null" >
+        #{eMail,jdbcType=VARCHAR},
+      </if>
+      <if test="age != null" >
+        #{age,jdbcType=INTEGER},
+      </if>
+      <if test="userTel != null" >
+        #{userTel,jdbcType=VARCHAR},
+      </if>
+      <if test="bydate != null" >
+        #{bydate,jdbcType=VARCHAR},
+      </if>
+      <if test="byschool != null" >
+        #{byschool,jdbcType=VARCHAR},
+      </if>
+      <if test="subject != null" >
+        #{subject,jdbcType=VARCHAR},
+      </if>
+      <if test="edu != null" >
+        #{edu,jdbcType=VARCHAR},
+      </if>
+      <if test="marry != null" >
+        #{marry,jdbcType=VARCHAR},
+      </if>
+      <if test="province != null" >
+        #{province,jdbcType=VARCHAR},
+      </if>
+      <if test="nation != null" >
+        #{nation,jdbcType=VARCHAR},
+      </if>
+      <if test="userBirth != null" >
+        #{userBirth,jdbcType=VARCHAR},
+      </if>
+      <if test="uName != null" >
+        #{uName,jdbcType=VARCHAR},
+      </if>
+      <if test="userOrder != null" >
+        #{userOrder,jdbcType=INTEGER},
+      </if>
+      <if test="userControl != null" >
+        #{userControl,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

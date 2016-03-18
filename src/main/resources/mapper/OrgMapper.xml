@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.right.dao.OrgMapper">
+  
+  
+  <select id="getOrg" resultType="com.right.entity.Org">
+            select * from d_org where org_id=#{userOrgId}
+    </select>
+    <select id="getOrgName" resultType="java.lang.String">
+            select org_name from d_org where org_id=#{userOrgId}
+    </select>
+    <select id="getMap" resultType="java.util.HashMap">
+           select ORG_ID,UP_ORG_ID,ORG_NAME,ORG_ORDER,concat('dep?depid=',convert(org_id,char)),'rhs' from d_org order by org_id;
+    </select>
+    <select id="getOrgList" resultType="com.right.entity.Org">
+    	select * from d_org 
+    </select>
+    
+   
+  <insert id="add" parameterType="com.right.entity.Org" useGeneratedKeys="true" keyProperty="org_id">
+    insert into d_org (ORG_ID, ORG_NAME, ORG_ORDER, 
+      UP_ORG_ID)
+    values (#{org_id,jdbcType=INTEGER}, #{org_name,jdbcType=VARCHAR}, #{org_order,jdbcType=INTEGER}, 
+      #{up_org_id,jdbcType=INTEGER})
+  </insert>
+  <update id="update" parameterType="com.right.entity.Org">
+  	update d_org set org_name=#{org_name},org_order=#{org_order},up_org_id=#{up_org_id} where org_id=#{org_id}
+  </update>
+  <insert id="insertSelective" parameterType="com.right.entity.Org">
+    insert into d_org
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="orgId != null">
+        ORG_ID,
+      </if>
+      <if test="orgName != null">
+        ORG_NAME,
+      </if>
+      <if test="orgOrder != null">
+        ORG_ORDER,
+      </if>
+      <if test="upOrgId != null">
+        UP_ORG_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="orgId != null">
+        #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="orgName != null">
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="orgOrder != null">
+        #{orgOrder,jdbcType=INTEGER},
+      </if>
+      <if test="upOrgId != null">
+        #{upOrgId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

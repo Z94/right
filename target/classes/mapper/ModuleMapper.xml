@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.ModuleMapper" >
+
+	<select id="getModuleList" resultType="com.right.entity.Module">
+            select * from d_module
+    </select>
+    <select id="getModuleHashMap" resultType="java.util.HashMap">
+          select module_id,up_module_id,module_name,module_order,concat('module?moduleId=',convert(module_id,char)),'rhs' from d_module order by module_id;
+    </select>
+     <select id="getMap" resultType="java.util.HashMap">
+          select module_id,up_module_id,module_name,module_order,MODULE_CONTROL from d_module order by module_id;
+    </select>
+    <select id="getManagerMap" resultType="java.util.HashMap">
+    	select module_id,up_module_id,module_name,module_order,concat('module?moduleId=',convert(module_id,char)),'rhs' from d_module where MODULE_CONTROL ='1' order by module_id;
+    </select>
+    <select id="getModule" resultType="com.right.entity.Module">
+    	select * from d_module where module_id = #{id}
+    </select>
+    <select id="getMap00" resultType="java.util.HashMap">
+         	#{0}
+    </select>
+    
+    <select id="getManager_id" resultType="java.lang.String">
+		select mm.manager_id from d_r_module_manager mm,d_manager m where mm.manager_id=m.manager_id and mm.manager_id != #{loginId} and mm.module_id= #{module_id} and m.org_id in 
+		<foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+	</select>
+	<select id="getManagerList" resultType="com.right.entity.Manager">
+		select * from d_manager where MANAGER_ID != 1 
+		and org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!lis.isEmpty()">
+ 			and manager_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach>  
+ 		</if>	
+<!-- 	and manager_id not in (select manager_id from d_r_module_manager where manager_id != #{loginId} and module_id= #{module_id})   -->	
+		
+	<!-- (select manager_id from d_r_module_manager where manager_id != 1 and module_id= 1)   -->	
+	</select>
+	<select id="getManager_name" resultType="com.right.entity.Manager">
+		select * from d_manager where manager_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+	
+	<select id="getRole_id" resultType="java.lang.String">
+		select rm.role_id from d_r_role_module rm,d_role r where rm.role_id=r.role_id  and rm.module_id= #{module_id} and r.org_id in 
+		<foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+	</select>
+	<select id="getRoleList" resultType="com.right.entity.Role">
+		select * from d_role where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!lis.isEmpty()">
+ 			and role_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach>
+ 		</if>  	
+	</select>
+	<select id="getRole_name" resultType="com.right.entity.Role">
+		select Role_name from d_role where role_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+	
+	<select id="getUser_id" resultType="java.lang.String">
+		select um.user_id from d_r_usermodule um,d_user u where um.user_id=u.user_id  and um.module_id= #{module_id} and u.org_id in 
+		<foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+	</select>
+	<select id="getUserList" resultType="com.right.entity.User">
+		select * from d_user where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!lis.isEmpty()">
+ 			and user_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach> 
+ 		</if> 	
+	</select>
+	<select id="getUser_name" resultType="com.right.entity.User">
+		select user_name from d_user where user_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+  <insert id="add" parameterType="com.right.entity.Module" useGeneratedKeys="true" keyProperty="module_id" >
+    insert into d_module (MODULE_ID, MODULE_NAME, MODULE_ORDER, 
+      MODULE_URL, UP_MODULE_ID, MODULE_CONTROL
+      )
+    values (#{module_id,jdbcType=INTEGER}, #{module_name,jdbcType=VARCHAR}, #{module_order,jdbcType=INTEGER}, 
+      #{module_url,jdbcType=VARCHAR}, #{up_module_id,jdbcType=INTEGER}, #{module_control,jdbcType=SMALLINT}
+      )
+  </insert>
+  <update id="update">
+  	UPDATE d_module
+		SET
+		MODULE_NAME = #{module_name },
+		MODULE_ORDER = #{module_order },
+		MODULE_URL = #{module_url },
+		UP_MODULE_ID = #{up_module_id },
+		MODULE_CONTROL = #{module_control }
+		WHERE MODULE_ID = #{module_id};
+  </update>
+  <insert id="insertSelective" parameterType="com.right.entity.Module" >
+    insert into d_module
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+      <if test="moduleName != null" >
+        MODULE_NAME,
+      </if>
+      <if test="moduleOrder != null" >
+        MODULE_ORDER,
+      </if>
+      <if test="moduleUrl != null" >
+        MODULE_URL,
+      </if>
+      <if test="upModuleId != null" >
+        UP_MODULE_ID,
+      </if>
+      <if test="moduleControl != null" >
+        MODULE_CONTROL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=INTEGER},
+      </if>
+      <if test="moduleName != null" >
+        #{moduleName,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleOrder != null" >
+        #{moduleOrder,jdbcType=INTEGER},
+      </if>
+      <if test="moduleUrl != null" >
+        #{moduleUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="upModuleId != null" >
+        #{upModuleId,jdbcType=INTEGER},
+      </if>
+      <if test="moduleControl != null" >
+        #{moduleControl,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+</mapper>

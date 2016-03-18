@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.RoleMapper" >
+
+
+	<select id="getRole" resultType="com.right.entity.Role">
+		select * from d_role where role_id = #{id}
+	</select>
+	
+	<!-- role_function -->
+	<select id="getFunctionList" resultType="java.lang.String">
+    	select function_id from d_r_role_fun where role_id=#{role_id}
+    </select>
+    <select id="getFunction_name" resultType="com.right.entity.Function">
+		select * from d_function
+		<where>
+			<if test="!list.isEmpty()">
+				 function_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getFunction_id" resultType="java.lang.String">
+		select function_id from d_r_fun_manager where manager_id=#{loginId}
+		<if test="!list.isEmpty()">
+			and function_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	<!-- role_module -->
+	<select id="getModuleList" resultType="java.lang.Integer">
+    	select module_id from d_r_role_module where role_id=#{role_id}
+    </select>
+    <select id="getModule_name" resultType="com.right.entity.Module">
+		select * from d_module 
+		<where>
+			<if test="!list.isEmpty()">
+				 module_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getModule_id" resultType="java.lang.Integer">
+		select module_id from d_r_module_manager where manager_id=#{loginId} 
+		<if test="!list.isEmpty()">
+			and module_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	<!-- role_user -->
+	<select id="getUserList" resultType="java.lang.String">
+    	select user_id from d_user_role where role_id=#{role_id}
+    </select>
+    <select id="getUser_name" resultType="com.right.entity.User">
+		select * from d_user 
+		<where>
+			<if test="!list.isEmpty()">
+				 user_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getUser_id" resultType="java.lang.String">
+		select user_id from d_user where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!list.isEmpty()">
+			and user_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	<select id="getOrg_id" resultType="java.lang.Integer">
+		select org_id from d_role where role_id = #{role_id} union (select org_id from d_org where up_org_id = (select org_id from d_role where role_id = #{role_id}))
+	</select>
+	
+	
+  <insert id="insert" parameterType="com.right.entity.Role" useGeneratedKeys="true" keyProperty="org_id" >
+    insert into d_role (ROLE_ID, ORG_ID, ROLE_NAME, 
+      ROLE_DESCRIBE, ROLE_ORDER)
+    values (#{role_id,jdbcType=INTEGER}, #{org_id,jdbcType=INTEGER}, #{role_name,jdbcType=VARCHAR}, 
+      #{role_describe,jdbcType=VARCHAR}, #{role_order,jdbcType=INTEGER})
+  </insert>
+  <update id="update">
+  	UPDATE d_role
+		SET
+		ORG_ID = #{org_id },
+		ROLE_NAME = #{role_name },
+		ROLE_DESCRIBE = #{role_describe },
+		ROLE_ORDER = #{role_order }
+		WHERE ROLE_ID = #{role_id};
+  </update>
+  <insert id="insertSelective" parameterType="com.right.entity.Role" >
+    insert into d_role
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="roleId != null" >
+        ROLE_ID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="roleName != null" >
+        ROLE_NAME,
+      </if>
+      <if test="roleDescribe != null" >
+        ROLE_DESCRIBE,
+      </if>
+      <if test="roleOrder != null" >
+        ROLE_ORDER,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="roleId != null" >
+        #{roleId,jdbcType=INTEGER},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="roleName != null" >
+        #{roleName,jdbcType=VARCHAR},
+      </if>
+      <if test="roleDescribe != null" >
+        #{roleDescribe,jdbcType=VARCHAR},
+      </if>
+      <if test="roleOrder != null" >
+        #{roleOrder,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

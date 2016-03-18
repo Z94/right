@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.CommonMapper" >
+
+	
+	<select id="getMap" resultType="java.util.HashMap">
+           select role_ID,ORG_ID,role_NAME,role_ORDER,concat('role?roleId=',convert(role_id,char)),'rhs' from D_role union select MANAGER_ID,ORG_ID,MANAGER_NAME,MANAGER_ORDER,concat('manager?managerId=',convert(manager_id,char)),'rhs' from D_MANAGER union select USER_ID,ORG_ID,USER_NAME,USER_ORDER,concat('user?userId=',convert(user_id,char)),'rhs' from D_USER
+    </select>
+    
+	<select id="getOrg" resultType="com.right.entity.Org">
+            select * from d_org where org_id=#{id}
+    </select>    
+	<select id="getOrg_id" resultType="java.lang.Integer">
+		select org_id from d_manager where manager_id = #{loginId} union (select org_id from d_org where up_org_id = (select org_id from d_manager where manager_id = #{loginId}))
+	</select>
+
+	<select id="getOrgId" resultType="java.lang.Integer">
+		select org_id from d_manager where manager_id = #{loginId} union (select org_id from d_org where up_org_id = (select org_id from d_manager where manager_id = #{loginId}))
+	</select>
+
+
+<select id="getIds" resultType="java.lang.Integer">
+		select ${selectName}_id from d_${selectName} where ${selectName}_name in <foreach collection="names" item="names" index="index" open="(" close=")" separator=",">#{names}</foreach>
+	</select>
+	
+	 <delete id="delete">
+  	delete from ${tableName} where ${deleteName}=#{id}
+  </delete>
+  
+    <insert id="add" parameterType="java.util.List">
+	 INSERT INTO ${tableName} values
+	 <choose> 
+		<when test="deleteName.equals('function_id')||deleteName.equals('module_id') "> 
+			<foreach collection="list" item="element" index="index" separator="," >(#{element},${id})</foreach>
+		</when> 
+	   <when test="deleteName.equals('manager_id')||deleteName.equals('user_id') "> 
+			<foreach collection="list" item="element" index="index" separator="," >(${id},#{element})</foreach>
+		</when>  	
+ 		<when test="deleteName.equals('role_id') and tableName.equals('d_r_role_fun') "> 
+			<foreach collection="list" item="element" index="index" separator="," >(${id},#{element})</foreach>
+		</when>
+		<when test="deleteName.equals('role_id') and tableName.equals('d_r_role_module') "> 
+			<foreach collection="list" item="element" index="index" separator="," >(${id},#{element})</foreach>
+		</when>   
+		<when test="deleteName.equals('role_id') and tableName.equals('d_user_role') "> 
+			<foreach collection="list" item="element" index="index" separator="," >(#{element},${id})</foreach>
+		</when>  
+<!-- 	<otherwise> 
+		<foreach collection="list" item="element" index="index" separator="," >(${id},#{element})</foreach>
+		</otherwise>  -->
+	</choose> 
+<!-- <if test="deleteName.equals('function_id')||deleteName.equals('module_id')||deleteName.equals('role_id') ">
+		<foreach collection="list" item="element" index="index" separator="," >(#{element},${id})</foreach>
+	 </if>
+	 <if test="deleteName.equals('manager_id')||deleteName.equals('user_id') ">
+		<foreach collection="list" item="element" index="index" separator="," >(${id},#{element})</foreach>
+	 </if>   -->	 
+</insert>
+</mapper>

@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.ManagerMapper" >
+    
+    <select id="getManager" resultType="com.right.entity.Manager">
+            select * from d_manager where MANAGER_LOGIN=#{0}
+    </select>
+    <select id="getManager1" resultType="com.right.entity.Manager">
+            select * from d_manager where MANAGER_ID=#{id}
+    </select>
+    <select id="selectAuthor"  resultType="com.right.entity.Org">
+        SELECT * FROM d_org WHERE up_org_id = -1
+    </select>   
+    
+    <resultMap id="ManagerResultMap" type="com.right.entity.Manager">
+    <result column="MANAGER_ID" jdbcType="VARCHAR" property="manager_id" />
+    <result column="ORG_ID" jdbcType="INTEGER" property="org_id" />
+    <result column="MANAGER_NAME" jdbcType="VARCHAR" property="manager_name" />
+    <result column="MANAGER_LOGIN" jdbcType="VARCHAR" property="manager_login" />
+    <result column="MANAGER_PWD" jdbcType="VARCHAR" property="manager_pwd" />
+    <result column="MANAGER_ORDER" jdbcType="INTEGER" property="manager_order" />
+    <result column="MANAGER_CONTROL" jdbcType="SMALLINT" property="manager_control" />
+    <association property="org_id" resultMap="OrgResultMap"/>
+  </resultMap>
+  
+  <resultMap id="OrgResultMap" type="java.lang.Integer">
+    <result column="ORG_ID" jdbcType="INTEGER" property="org_id" />
+    <result column="ORG_NAME" jdbcType="VARCHAR" property="org_name" />
+    <result column="ORG_ORDER" jdbcType="INTEGER" property="org_order" />
+    <result column="UP_ORG_ID" jdbcType="INTEGER" property="up_org_id" />
+  </resultMap>
+  <select id="getManagerList"  resultMap="ManagerResultMap">
+        select m.* from d_manager m,d_org o where m.org_id = o.org_id and o.up_org_id = -1
+    </select>
+ 
+ 	<select id="getMap" resultType="java.util.HashMap">
+ 
+ 	select MANAGER_ID,ORG_ID,MANAGER_NAME,MANAGER_ORDER,concat('manager?managerId=',convert(manager_id,char)),'rhs' from D_MANAGER
+    </select>
+    
+    <select id="getFunctionList" resultType="java.lang.Integer">
+    	select function_id from d_r_fun_manager where manager_id=#{manager_id}
+    </select>
+    <select id="getFunction_name" resultType="com.right.entity.Function">
+		select * from d_function
+		<where>
+			<if test="!list.isEmpty()">
+				 function_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getFunction_id" resultType="java.lang.Integer">
+		select function_id from d_r_fun_manager where manager_id=#{loginId}
+		<if test="!list.isEmpty()">
+			and function_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	
+	<select id="getModuleList" resultType="java.lang.Integer">
+    	select module_id from d_r_module_manager where manager_id=#{manager_id}
+    </select>
+    <select id="getModule_name" resultType="com.right.entity.Module">
+		select * from d_module 
+		<where>
+			<if test="!list.isEmpty()">
+				 module_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+			</if>
+		</where>
+	</select>
+	<select id="getModule_id" resultType="java.lang.Integer">
+		select module_id from d_r_module_manager where manager_id=#{loginId} 
+		<if test="!list.isEmpty()">
+			and module_id not in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+		</if>
+	</select>
+	
+  <insert id="insert" parameterType="com.right.entity.Manager" >
+    insert into d_manager (MANAGER_ID, ORG_ID, MANAGER_NAME, 
+      MANAGER_LOGIN, MANAGER_PWD, MANAGER_ORDER, 
+      MANAGER_CONTROL)
+    values (#{manager_id}, #{org_id,jdbcType=INTEGER}, #{manager_name,jdbcType=VARCHAR}, 
+      #{manager_login,jdbcType=VARCHAR}, #{manager_pwd,jdbcType=VARCHAR}, #{manager_order,jdbcType=INTEGER}, 
+      #{manager_control,jdbcType=SMALLINT})
+  </insert>
+  <update id="update" parameterType="com.right.entity.Manager">
+  	UPDATE d_manager SET
+		ORG_ID = #{org_id },
+		MANAGER_NAME = #{manager_name },
+		MANAGER_LOGIN = #{manager_login },
+		MANAGER_PWD = #{manager_pwd },
+		MANAGER_ORDER = #{manager_order },
+		MANAGER_CONTROL = #{manager_control }
+		WHERE MANAGER_ID = #{manager_id};
+
+  </update>
+  <insert id="insertSelective" parameterType="com.right.entity.Manager" >
+    insert into d_manager
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        MANAGER_ID,
+      </if>
+      <if test="orgId != null" >
+        ORG_ID,
+      </if>
+      <if test="managerName != null" >
+        MANAGER_NAME,
+      </if>
+      <if test="managerLogin != null" >
+        MANAGER_LOGIN,
+      </if>
+      <if test="managerPwd != null" >
+        MANAGER_PWD,
+      </if>
+      <if test="managerOrder != null" >
+        MANAGER_ORDER,
+      </if>
+      <if test="managerControl != null" >
+        MANAGER_CONTROL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="managerName != null" >
+        #{managerName,jdbcType=VARCHAR},
+      </if>
+      <if test="managerLogin != null" >
+        #{managerLogin,jdbcType=VARCHAR},
+      </if>
+      <if test="managerPwd != null" >
+        #{managerPwd,jdbcType=VARCHAR},
+      </if>
+      <if test="managerOrder != null" >
+        #{managerOrder,jdbcType=INTEGER},
+      </if>
+      <if test="managerControl != null" >
+        #{managerControl,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+ </mapper>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.MManagerMapper" >
+  <select id="getManagerMap" resultType="java.util.HashMap">
+		    select module_id from D_R_usermodule where user_id=#{managerId};
+    </select>
+  <insert id="insert" parameterType="com.right.entity.MManager" >
+    insert into d_r_module_manager (MANAGER_ID, MODULE_ID)
+    values (#{managerId,jdbcType=VARCHAR}, #{moduleId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.right.entity.MManager" >
+    insert into d_r_module_manager
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        MANAGER_ID,
+      </if>
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="managerId != null" >
+        #{managerId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

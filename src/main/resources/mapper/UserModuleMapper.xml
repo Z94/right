@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.UserModuleMapper" >
+  <select id="getMap" resultType="java.util.HashMap">
+		    select module_id from D_R_usermodule where user_id=#{userId};
+    </select>
+  <insert id="insert" parameterType="com.right.entity.UserModule" >
+    insert into d_r_usermodule (USER_ID, MODULE_ID)
+    values (#{userId,jdbcType=VARCHAR}, #{moduleId,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="com.right.entity.UserModule" >
+    insert into d_r_usermodule
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        USER_ID,
+      </if>
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="userId != null" >
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+</mapper>

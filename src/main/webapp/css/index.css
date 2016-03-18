@@ -1,0 +1,4 @@
+@CHARSET "UTF-8";
+#header{ background: #269DDF url(../images/header_bg.png) 0 0 repeat-x; }
+#header-inner{ height: 85px;overflow: hidden;}
+#logo{float: left;width: 680px;height: 85px;text-indent: -999em;overflow: hidden;background: url(../images/logo.jpg) 0 0 no-repeat;}

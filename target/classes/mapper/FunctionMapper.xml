@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.right.dao.FunctionMapper" >
+
+  <select id="getFunctionList" resultType="com.right.entity.Function">
+  		select * from d_function
+  </select>
+  <select id="getFunction" resultType="com.right.entity.Function">
+            select * from d_function where function_id=#{id}
+    </select>
+    <select id="getMap" resultType="java.util.HashMap">
+		    select function_id,module_id,function_name,function_order,function_url,function_target,FUNCTION_CONTROL from d_function;
+    </select>
+    <select id="getManagerMap" resultType="java.util.HashMap">
+    	select function_id,module_id,function_name,function_order,concat('function?functionId=',convert(function_id,char)),'rhs' from d_function  where FUNCTION_CONTROL ='1' order by function_id;
+    </select>
+    
+    <select id="getManager_id" resultType="java.lang.Integer">
+		select fm.manager_id from d_r_fun_manager fm ,d_manager m where fm.manager_id=m.manager_id 
+		and fm.manager_id != #{loginId} 
+		and fm.function_id= #{function_id} 
+		<if test="!org_id.isEmpty()">
+			and m.org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		</if>
+	</select>
+	<select id="getManagerList" resultType="com.right.entity.Manager">
+		select * from d_manager where MANAGER_ID != 1 
+		<if test="!orgId.isEmpty()">
+			and org_id in <foreach collection="orgId" item="orgId" index="index" open="(" close=")" separator=",">#{orgId}</foreach>
+		</if>
+ 		<if test="!lis.isEmpty()">
+ 			and manager_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach>  
+		</if>	 		
+	</select>
+	<select id="getManager_name" resultType="com.right.entity.Manager">
+		select * from d_manager where manager_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+	
+	<select id="getRole_id" resultType="java.lang.Integer">
+		select rm.role_id from d_r_role_fun rm,d_role r where rm.role_id=r.role_id  and rm.function_id= #{function_id} and r.org_id in 
+		<foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+	</select>
+	<select id="getRoleList" resultType="com.right.entity.Role">
+		select * from d_role where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!lis.isEmpty()">
+ 		and role_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach> 
+		</if> 	
+	</select>
+	<select id="getRole_name" resultType="com.right.entity.Role">
+		select * from d_role where role_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+	
+	<select id="getUser_id" resultType="java.lang.Integer">
+		select um.user_id from d_r_userfun um,d_user u where um.user_id=u.user_id  and um.function_id= #{function_id} and u.org_id in 
+		<foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+	</select>
+	<select id="getUserList" resultType="com.right.entity.User">
+		select * from d_user where org_id in <foreach collection="org_id" item="org_id" index="index" open="(" close=")" separator=",">#{org_id}</foreach>
+		<if test="!lis.isEmpty()">
+ 			and user_id not in <foreach collection="lis" item="lis" index="index" open="(" close=")" separator=",">#{lis}</foreach>  
+		</if>	
+	</select>
+	<select id="getUser_name" resultType="com.right.entity.User">
+		select * from d_user where user_id in <foreach collection="list" item="list" index="index" open="(" close=")" separator=",">#{list}</foreach>
+	</select>
+    
+  <insert id="add" parameterType="com.right.entity.Function" useGeneratedKeys="true" keyProperty="module_id">
+    insert into d_function (FUNCTION_ID, MODULE_ID, FUNCTION_NAME, 
+      FUNCTION_DES, FUNCTION_ORDER, FUNCTION_URL, 
+      FUNCTION_TARGET, FUNCTION_CONTROL)
+    values (#{function_id,jdbcType=INTEGER}, #{module_id,jdbcType=INTEGER}, #{function_name,jdbcType=VARCHAR}, 
+      #{function_des,jdbcType=VARCHAR}, #{function_order,jdbcType=INTEGER}, #{function_url,jdbcType=VARCHAR}, 
+      #{function_target,jdbcType=VARCHAR}, #{function_control,jdbcType=SMALLINT})
+  </insert>
+  <update id="update" parameterType="com.right.entity.Function">
+  	update d_function set 
+  	function_name=#{function_name},function_des=#{function_des},module_id=#{module_id},function_target=#{function_target},function_order=#{function_order},function_control=#{function_control}
+  	where function_id=#{function_id}
+  </update>
+  
+  <delete id="delete1">
+  	delete from d_r_fun_manager where function_id=#{function_id}
+  </delete>
+  
+  <resultMap type="com.right.entity.FManager" id="orderResult">
+   <result column="manager_id" property="manager_id" jdbcType="VARCHAR" />
+    <result column="function_id" property="function_id" jdbcType="INTEGER" />
+  </resultMap>
+  
+  
+    <insert id="add1" parameterType="java.util.List">
+ INSERT INTO d_r_fun_manager (function_id,manager_id) values
+<foreach collection="list" item="element" index="index" separator="," >
+ (#{element.function_id},#{element.manager_id})
+</foreach>
+</insert>
+<insert id="add2">
+ INSERT INTO d_r_fun_manager  values
+<foreach collection="manager_id" item="element" index="index" separator="," >
+ (#{element},${function_id})
+</foreach>
+</insert>
+
+  <insert id="insertSelective" parameterType="com.right.entity.Function" >
+    insert into d_function
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="functionId != null" >
+        FUNCTION_ID,
+      </if>
+      <if test="moduleId != null" >
+        MODULE_ID,
+      </if>
+      <if test="functionName != null" >
+        FUNCTION_NAME,
+      </if>
+      <if test="functionDes != null" >
+        FUNCTION_DES,
+      </if>
+      <if test="functionOrder != null" >
+        FUNCTION_ORDER,
+      </if>
+      <if test="functionUrl != null" >
+        FUNCTION_URL,
+      </if>
+      <if test="functionTarget != null" >
+        FUNCTION_TARGET,
+      </if>
+      <if test="functionControl != null" >
+        FUNCTION_CONTROL,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="functionId != null" >
+        #{functionId,jdbcType=INTEGER},
+      </if>
+      <if test="moduleId != null" >
+        #{moduleId,jdbcType=INTEGER},
+      </if>
+      <if test="functionName != null" >
+        #{functionName,jdbcType=VARCHAR},
+      </if>
+      <if test="functionDes != null" >
+        #{functionDes,jdbcType=VARCHAR},
+      </if>
+      <if test="functionOrder != null" >
+        #{functionOrder,jdbcType=INTEGER},
+      </if>
+      <if test="functionUrl != null" >
+        #{functionUrl,jdbcType=VARCHAR},
+      </if>
+      <if test="functionTarget != null" >
+        #{functionTarget,jdbcType=VARCHAR},
+      </if>
+      <if test="functionControl != null" >
+        #{functionControl,jdbcType=SMALLINT},
+      </if>
+    </trim>
+  </insert>
+</mapper>
